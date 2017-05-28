@@ -1,0 +1,18 @@
+{{define "content"}}
+<h1>{{.Title}}</h1>
+		{{range .Items}}<div>{{ . }}</div>{{else}}<div><strong>no rows</strong></div>{{end}}
+		{{range .Comments}}<div>{{ . }}</div>{{else}}<div><strong>no rows</strong></div>{{end}}
+{{end}}
+{{define "header"}}
+<h1>A thing</h1>
+{{end}}
+
+{{define "newcomment"}}
+<html>
+	{{range .Comments}}<div>{{ . }}</div>{{else}}<div><strong>no rows</strong></div>{{end}}
+<form method="post" action="/home">
+	<textarea  name="comment"></textarea>
+	<button type="submit">Send</button>
+</form>
+</html>
+{{end}}
