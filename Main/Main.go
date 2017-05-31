@@ -8,7 +8,7 @@ import (
 	"net/http"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/httprouter"
+	"github.com/julienschmidt/httprouter"
 )
 
 var db *sql.DB
