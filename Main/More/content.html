@@ -1,25 +1,10 @@
 {{define "title"}}
 <html>
-<h1>{{.Title}}</h1>
-		{{range .Games}}<div>{{ . }}</div>{{else}}<div><strong>no rows</strong></div>{{end}}
-		{{range .Comments}}<div>{{ . }}</div>{{else}}<div><strong>no rows</strong></div>{{end}}
+<h1>These are games</h1>
+		{{range .Games}}<div>{{ .Title}} - {{ .Genre}} - {{ .Year}} </div>{{else}}<div><strong>no rows</strong></div>{{end}}
 </html>
 {{end}}
-{{define "games"}}
-<html>
-<h1>{{.Title}}</h1>
-		{{range .Games}}<div>{{ . }}</div>{{else}}<div><strong>no rows</strong></div>{{end}}
-		{!-- {{range .Comments}}<div>{{ . }}</div>{{else}}<div><strong>no rows</strong></div>{{end}} --}
-</html>
-{{end}}
-{{define "comments"}}
-<html>
-	{{range .Comments}}<div>{{ . }}</div>{{else}}<div><strong>no rows</strong></div>{{end}}
-</hmtl>
-{{end}}
-{{define "header"}}
-<h1>A thing</h1>
-{{end}}
+
 
 {{define "newcomment"}}
 <html>
