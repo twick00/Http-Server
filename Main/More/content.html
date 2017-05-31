@@ -6,11 +6,15 @@
 {{end}}
 
 
-{{define "newcomment"}}
+{{define "postgamedata"}}
 <html>
-	{{range .Comments}}<div>{{ . }}</div>{{else}}<div><strong>no rows</strong></div>{{end}}
 <form method="post" action="/home">
-	<textarea  name="comment"></textarea>
+<h1>Post more games into the library.</h1>
+	<textarea  name="title" required placeholder="title"></textarea>
+	<textarea  name="year" required placeholder="year"></textarea>
+	<textarea  name="genre" required placeholder="genre"></textarea>
+	
+	<br>
 	<button type="submit">Send</button>
 </form>
 </html>

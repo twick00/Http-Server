@@ -63,7 +63,7 @@ func gethome(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	//decodejson()
 	t, _ := template.ParseFiles("./More/content.html")
 	s1 := t.Lookup("content.html")
-	s1.ExecuteTemplate(rw, "newcomment", data)
+	s1.ExecuteTemplate(rw, "postgamedata", data)
 }
 func getroot(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	//decodejson()
@@ -92,12 +92,14 @@ func getcomments(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 func posthome(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	//decodejson()
-	comment := r.FormValue("comment")
-	if comment != "" { //Can create empty strings when pressing the button
-		data.Comments = append(data.Comments, comment)
-	}
-	fmt.Println(data.Comments)
-
+	formTitle := r.FormValue("title")
+	formYear := r.FormValue("year")
+	formGenre := r.FormValue("genre")
+	res, err := db.Prepare("INSERT INTO games VALUES(?, ?, ?)")
+	check(err)
+	institle, err := res.Exec(formTitle, formYear, formGenre)
+	check(err)
+	fmt.Println(institle)
 	//encodejson()
 	gethome(rw, r, nil) //Fix later
 }
