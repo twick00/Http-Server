@@ -48,7 +48,6 @@ func gethome(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 func getroot(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	var data Gamesstruct
 	data.Games = gettabledata()
-	log.Print(data.Games[0].Title)
 	t, err := template.ParseFiles("./More/content.html")
 	check(err)
 	s1 := t.Lookup("content.html")
@@ -73,9 +72,8 @@ func posthome(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	formGenre := r.FormValue("genre")
 	res, err := db.Prepare("INSERT INTO games VALUES(?, ?, ?)")
 	check(err)
-	institle, err := res.Exec(formTitle, formYear, formGenre)
+	_, err = res.Exec(formTitle, formYear, formGenre)
 	check(err)
-	fmt.Println(institle)
 	gethome(rw, r, nil) //Fix later
 }
 func gettabledata() []Game {
