@@ -4,22 +4,17 @@ import (
 	"database/sql"
 	"fmt"
 	"html/template"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"sync"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/julienschmidt/httprouter"
 )
 
+var o sync.Once
 var db *sql.DB
-
-// type dataContainer struct {
-// 	Title    string
-// 	Games    []string
-// 	Comments []string
-// 	Yesman   string
-// }
-
 var data = struct {
 	Title    string
 	Games    []string
@@ -32,20 +27,6 @@ func check(e error) { //Simple error passing
 		panic(e)
 	}
 }
-
-// func decodejson() {
-// 	jlist, _ := ioutil.ReadFile("./More/list.json")
-// 	var marshjlist = []byte(jlist)
-// 	err := json.Unmarshal(marshjlist, &data)
-// 	check(err)
-// }
-// func encodejson() {
-// 	marshjlist, err := json.Marshal(data)
-// 	check(err)
-// 	fmt.Println(marshjlist)
-// 	ioutil.WriteFile("./More/list.json", marshjlist, os.ModeTemporary)
-// 	//Note: What is mode temp vs perm?
-// }
 
 //Game is game
 type Game struct {
@@ -60,13 +41,11 @@ type Gamesstruct struct {
 }
 
 func gethome(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	//decodejson()
 	t, _ := template.ParseFiles("./More/content.html")
 	s1 := t.Lookup("content.html")
 	s1.ExecuteTemplate(rw, "postgamedata", data)
 }
 func getroot(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	//decodejson()
 	var data Gamesstruct
 	data.Games = gettabledata()
 	log.Print(data.Games[0].Title)
@@ -76,14 +55,12 @@ func getroot(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	s1.ExecuteTemplate(rw, "title", data)
 }
 func getgames(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	//decodejson()
 	t, _ := template.ParseFiles("./More/content.html")
 	s1 := t.Lookup("content.html")
 	fmt.Println(data.Games)
 	s1.ExecuteTemplate(rw, "games", data)
 }
 func getcomments(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	//decodejson()
 	t, _ := template.ParseFiles("./More/content.html")
 	s1 := t.Lookup("content.html")
 	fmt.Println(data.Comments)
@@ -91,7 +68,6 @@ func getcomments(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 func posthome(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	//decodejson()
 	formTitle := r.FormValue("title")
 	formYear := r.FormValue("year")
 	formGenre := r.FormValue("genre")
@@ -100,7 +76,6 @@ func posthome(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	institle, err := res.Exec(formTitle, formYear, formGenre)
 	check(err)
 	fmt.Println(institle)
-	//encodejson()
 	gethome(rw, r, nil) //Fix later
 }
 func gettabledata() []Game {
@@ -120,9 +95,11 @@ func gettabledata() []Game {
 	return games
 }
 func connectdb() *sql.DB {
-	var err error
 	if db == nil {
-		db, err = sql.Open("mysql", "root:password@tcp(127.0.0.1:3306)/data") //PASSWORD!
+		ini, err := ioutil.ReadFile("./More/pass.txt")
+		inistr := string(ini)
+		check(err)
+		db, err = sql.Open("mysql", inistr) //PASSWORD!
 		check(err)
 		return db
 	}
@@ -130,6 +107,7 @@ func connectdb() *sql.DB {
 }
 
 func main() {
+	//o.Do(checksetsql)
 	connectdb()
 	router := httprouter.New()
 	router.GET("/", getroot)
@@ -138,10 +116,16 @@ func main() {
 	router.GET("/games/comments", getcomments)
 	router.POST("/home", posthome)
 
-	/*http.HandleFunc("/jump", func(rw http.ResponseWriter, r *http.Request) {
-		t, _ := template.New("webpage").Parse()
-		data.Yesman = "Jumped"
-		t.Execute(rw, data)
-	})*/
 	log.Fatal(http.ListenAndServe("127.0.0.1:8080", router))
 }
+
+// func checksetsql() {
+// 	migratescript, err := ioutil.ReadFile("./More/migrate.sql")
+// 	check(err)
+// 	fmt.Println(migratescript)
+// 	s := string(migratescript[:])
+// 	fmt.Println(s)
+// 	_, err = db.Exec(s)
+// 	check(err)
+
+// }
