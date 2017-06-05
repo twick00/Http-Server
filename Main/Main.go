@@ -110,6 +110,7 @@ func connectdb() *sql.DB {
 		check(err)
 		db, err = sql.Open("mysql", inistr) //PASSWORD!
 		check(err)
+		db.Exec("USE test")
 		return db
 	}
 	fmt.Println("Problem: Migration Script Not Run")
