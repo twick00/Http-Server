@@ -31,7 +31,7 @@ func check(e error) { //Simple error passing
 	}
 }
 
-//Game struct contains Title(s), Year(int), Genre(s), and Barcode(int)
+//Game struct contains Title(s), Year(int), Genre(s), Barcode(int) and ID(int)
 type Game struct {
 	Title   string
 	Year    int
