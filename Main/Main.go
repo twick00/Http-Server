@@ -12,7 +12,8 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/julienschmidt/httprouter"
-	"github.com/twick00/go_nuts/Main/res"
+	"github.com/sfreiberg/gotwilio"
+	_ "github.com/sfreiberg/gotwilio"
 )
 
 var o sync.Once
@@ -25,24 +26,15 @@ var data = struct {
 	ID      int
 }{}
 
+var twilAuth = struct {
+	sid   string
+	token string
+}{"AC8801f78123e60a00a2634f1aaaff8c27", "03b53b278adb30f2ed7397b776317628"}
+
 func check(e error) { //Simple error passing
 	if e != nil {
 		panic(e)
 	}
-}
-
-//Game struct contains Title(s), Year(int), Genre(s), Barcode(int) and ID(int)
-type Game struct {
-	Title   string
-	Year    int
-	Genre   string
-	Barcode int
-	ID      int
-}
-
-//Gamesstruct Contains []Game
-type Gamesstruct struct {
-	Games []Game
 }
 
 func gethome(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -52,8 +44,6 @@ func gethome(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	s1.ExecuteTemplate(rw, "postgamedata", data)
 }
 func getroot(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	var data Gamesstruct
-	data.Games = gettabledata()
 	t, err := template.ParseFiles("./res/content.html")
 	check(err)
 	s1 := t.Lookup("content.html")
@@ -83,24 +73,6 @@ func posthome(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	check(err)
 	gethome(rw, r, nil) //Fix later
 }
-func gettabledata() []Game {
-	games := []Game{} //All the data
-	game := Game{
-		Title:   "",
-		Year:    0,
-		Genre:   "",
-		Barcode: 0,
-		ID:      0,
-	} //Just one set of data
-	rows, err := db.Query("SELECT * FROM test.games") //
-	check(err)
-	for rows.Next() {
-		err := rows.Scan(&game.Title, &game.Year, &game.Genre, &game.Barcode, &game.ID)
-		games = append(games, game)
-		check(err)
-	}
-	return games
-}
 
 //This should never be run with the migration script working
 func connectdb() *sql.DB {
@@ -117,15 +89,16 @@ func connectdb() *sql.DB {
 }
 
 func main() {
-	if db == nil {
-		db = dbconnect.Command()
-	} else {
-		connectdb()
-	}
 	router := httprouter.New()
 	router.GET("/", getroot)
 	router.GET("/home", gethome)
 	router.POST("/home", posthome)
-
+	newMessage()
 	log.Fatal(http.ListenAndServe("127.0.0.1:8080", router))
+}
+
+func newMessage() {
+	twilio := gotwilio.NewTwilioClient(twilAuth.sid, twilAuth.token)
+	response, _, _ := twilio.GetSMS("MM800f449d0399ed014aae2bcc0cc2f2ec")
+	fmt.Println(response)
 }
