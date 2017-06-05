@@ -119,6 +119,7 @@ func connectdb() *sql.DB {
 func main() {
 	if db == nil {
 		db = dbconnect.Command()
+		db.Exec("USE test")
 	} else {
 		connectdb()
 	}
