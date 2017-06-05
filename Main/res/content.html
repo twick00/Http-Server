@@ -1,0 +1,26 @@
+{{define "title"}}
+<html>
+<h1>These are games</h1>
+{{range .Games}}
+<div>{{ .Title}} - {{ .Year}} - {{ .Genre}} - {{ .Barcode}} - {{ .ID}}</div>{{else}}
+<div><strong>no rows</strong></div>{{end}}
+</html>
+{{end}}
+
+
+{{define "postgamedata"}}
+<html>
+<form method="post" action="/home">
+<h1>Post more games into the library.</h1>
+	<textarea  name="title" required placeholder="title"></textarea>
+	<textarea  name="year" required placeholder="year"></textarea>
+	<textarea  name="genre" required placeholder="genre"></textarea>
+	<br>
+	<textarea name="barcode" placeholder="barcode (not required)" disabled></textarea>
+	<textarea name="ID" placeholder="ID (not required)" disabled></textarea>
+	<!--"barcode" and "ID" are temp disabled as they are not necessary for testing-->
+	<br>
+	<button type="submit">Send</button>
+</form>
+</html>
+{{end}}
