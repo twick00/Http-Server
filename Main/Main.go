@@ -29,7 +29,7 @@ var data = struct {
 var twilAuth = struct {
 	sid   string
 	token string
-}{"AC8801f78123e60a00a2634f1aaaff8c27", "03b53b278adb30f2ed7397b776317628"}
+}{}
 
 func check(e error) { //Simple error passing
 	if e != nil {
@@ -87,18 +87,37 @@ func connectdb() *sql.DB {
 	fmt.Println("Problem: Migration Script Not Run")
 	return db
 }
+func getmessage(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+
+}
+func postmessage(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+
+}
 
 func main() {
+	gettwilauth()
 	router := httprouter.New()
 	router.GET("/", getroot)
 	router.GET("/home", gethome)
 	router.POST("/home", posthome)
+	router.GET("/message", getmessage)
+	router.POST("/message", postmessage)
 	newMessage()
 	log.Fatal(http.ListenAndServe("127.0.0.1:8080", router))
+}
+func gettwilauth() {
+	file, err := ioutil.ReadFile("./res/twilauth.txt")
+	check(err)
+	sid, err := fmt.Scanln(file)
+	check(err)
+	token, err := fmt.Scanln(file)
+	check(err)
+	twilAuth.sid = string(sid)
+	twilAuth.token = string(token)
 }
 
 func newMessage() {
 	twilio := gotwilio.NewTwilioClient(twilAuth.sid, twilAuth.token)
-	response, _, _ := twilio.GetSMS("MM800f449d0399ed014aae2bcc0cc2f2ec")
+	response, _, _ := twilio.GetSMS("https://chat.twilio.com/v2/Services")
 	fmt.Println(response)
 }
