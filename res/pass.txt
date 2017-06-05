@@ -1,1 +1,1 @@
-root:password@/test
+root:password@/
