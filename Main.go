@@ -77,7 +77,10 @@ func posthome(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	for i, forms := range arrform {
 		arrform[i] = stringchecker(forms)
 	}
+
 	res, err := db.Prepare("INSERT INTO games VALUES(?, ?, ?, ?, ?)")
+	check(err)
+
 	check(err)
 	_, err = res.Exec(arrform[0], arrform[1], arrform[2], arrform[3], arrform[4])
 	check(err)
@@ -122,6 +125,8 @@ func main() {
 	} else {
 		connectdb()
 	}
+	_, err := db.Exec("USE test")
+	check(err)
 	router := httprouter.New()
 	router.GET("/", getroot)
 	router.GET("/home", gethome)
