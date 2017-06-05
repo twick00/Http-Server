@@ -12,7 +12,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/julienschmidt/httprouter"
-	"github.com/twick00/go_nuts/Main/res"
+	"github.com/twick00/Http-server/res"
 )
 
 var o sync.Once
