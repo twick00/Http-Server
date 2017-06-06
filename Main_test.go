@@ -26,10 +26,3 @@ func TestConnectdb(t *testing.T) {
 		t.Error("Problem closing connection while tdb != nil. Error: ", err)
 	}
 }
-
-func TestPosthome(t *testing.T) {
-	v := Posthome
-	if v != nil {
-		t.Error("Expected nil, got ", v)
-	}
-}
