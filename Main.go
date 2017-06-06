@@ -60,14 +60,17 @@ func getroot(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	s1.ExecuteTemplate(rw, "title", data)
 }
 
-func stringchecker(check string) string {
+//Stringchecker checks for empty strings and then fills them with "0".
+func Stringchecker(check string) string {
 	if check == "" {
 		return "0"
 	}
 	return check
 }
 
-func posthome(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+//Posthome is a POST @ /home
+func Posthome(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+
 	formTitle := r.FormValue("title")
 	formYear := r.FormValue("year")
 	formGenre := r.FormValue("genre")
@@ -75,16 +78,14 @@ func posthome(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	formID := r.FormValue("ID")
 	arrform := []string{formTitle, formYear, formGenre, formBarcode, formID}
 	for i, forms := range arrform {
-		arrform[i] = stringchecker(forms)
+		arrform[i] = Stringchecker(forms)
 	}
-
 	res, err := db.Prepare("INSERT INTO games VALUES(?, ?, ?, ?, ?)")
-	check(err)
-
 	check(err)
 	_, err = res.Exec(arrform[0], arrform[1], arrform[2], arrform[3], arrform[4])
 	check(err)
 	gethome(rw, r, nil) //Fix later
+
 }
 func gettabledata() []Game {
 	games := []Game{} //All the data
@@ -106,7 +107,8 @@ func gettabledata() []Game {
 }
 
 //This should never be run with the migration script working
-func connectdb() *sql.DB {
+//Connectdb connects to the MySql database
+func Connectdb() *sql.DB {
 	if db == nil {
 		ini, err := ioutil.ReadFile("./res/pass.txt")
 		inistr := string(ini)
@@ -123,14 +125,14 @@ func main() {
 	if db == nil {
 		db = dbconnect.Command()
 	} else {
-		connectdb()
+		Connectdb()
 	}
 	_, err := db.Exec("USE test")
 	check(err)
 	router := httprouter.New()
 	router.GET("/", getroot)
 	router.GET("/home", gethome)
-	router.POST("/home", posthome)
+	router.POST("/home", Posthome)
 
 	log.Fatal(http.ListenAndServe("127.0.0.1:8080", router))
 }
