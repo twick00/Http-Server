@@ -2,122 +2,101 @@ package main
 
 import (
 	"database/sql"
-	"html/template"
-	"io/ioutil"
-	"log"
-	"net/http"
-	"sync"
-
+	"errors"
 	"fmt"
+	"html/template"
+	"net/http"
+	"unicode/utf8"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/julienschmidt/httprouter"
-	"github.com/sfreiberg/gotwilio"
-	_ "github.com/sfreiberg/gotwilio"
 )
 
-var o sync.Once
-var db *sql.DB
-var data = struct {
-	Title   string
-	Year    int
-	Genre   string
-	Barcode int
-	ID      int
-}{}
+type mysql struct {
+	Database *sql.DB
+	Name     string
+	Pass     string
+}
+type loginError struct {
+	Error   error
+	Message string
+	Code    int
+}
 
-var twilAuth = struct {
-	sid   string
-	token string
-}{}
+var login = mysql{}
 
-func check(e error) { //Simple error passing
-	if e != nil {
-		panic(e)
+func check(err error) {
+	if err != nil {
+		fmt.Println(err)
 	}
 }
 
-func gethome(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func main() {
+
+}
+
+func getlogin(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+
+}
+
+func postlogin(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+
+}
+
+func stringchecker(scheck ...string) (int, error) {
+	for _, str := range scheck {
+		if str == "" {
+			return -1, errors.New("Field is empty")
+		}
+		if utf8.RuneCountInString(str) > 32 {
+			return -2, errors.New("Exceeds 32 string max")
+		}
+	}
+	return 1, nil
+}
+
+func getroot(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	var data string
 	t, err := template.ParseFiles("./res/content.html")
 	check(err)
 	s1 := t.Lookup("content.html")
 	s1.ExecuteTemplate(rw, "postgamedata", data)
 }
-func getroot(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	t, err := template.ParseFiles("./res/content.html")
-	check(err)
-	s1 := t.Lookup("content.html")
-	s1.ExecuteTemplate(rw, "title", data)
-}
+func errorpage(rw http.ResponseWriter, r *http.Request, _ httprouter.Params, code int) {
 
-func stringchecker(check string) string {
-	if check == "" {
-		return "0"
+}
+func postroot(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	login.Name = r.FormValue("name")
+	login.Pass = r.FormValue("pass")
+	code, err := stringchecker(login.Pass, login.Name)
+
+	if code != 1 {
+		fmt.Println(err)
+		errorpage(rw, r, nil, code)
+		return
 	}
-	return check
-}
-
-func posthome(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	formTitle := r.FormValue("title")
-	formYear := r.FormValue("year")
-	formGenre := r.FormValue("genre")
-	formBarcode := r.FormValue("barcode")
-	formID := r.FormValue("ID")
-	arrform := []string{formTitle, formYear, formGenre, formBarcode, formID}
-	for i, forms := range arrform {
-		arrform[i] = stringchecker(forms)
-	}
-	res, err := db.Prepare("INSERT INTO games VALUES(?, ?, ?, ?, ?)")
-	check(err)
-	_, err = res.Exec(arrform[0], arrform[1], arrform[2], arrform[3], arrform[4])
-	check(err)
-	gethome(rw, r, nil) //Fix later
-}
-
-//This should never be run with the migration script working
-func connectdb() *sql.DB {
-	if db == nil {
-		ini, err := ioutil.ReadFile("./res/pass.txt")
-		inistr := string(ini)
-		check(err)
-		db, err = sql.Open("mysql", inistr) //PASSWORD!
-		check(err)
-		return db
-	}
-	fmt.Println("Problem: Migration Script Not Run")
-	return db
-}
-func getmessage(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	var db *sql.DB
+	Connectdb(login.Name, login.Pass, "mysql", db)
+	//TYLER ADD A PAGE FOR DATA #######################################
 
 }
-func postmessage(rw http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-
-}
-
-func main() {
-	gettwilauth()
+func routering() {
 	router := httprouter.New()
 	router.GET("/", getroot)
-	router.GET("/home", gethome)
-	router.POST("/home", posthome)
-	router.GET("/message", getmessage)
-	router.POST("/message", postmessage)
-	newMessage()
-	log.Fatal(http.ListenAndServe("127.0.0.1:8080", router))
-}
-func gettwilauth() {
-	file, err := ioutil.ReadFile("./res/twilauth.txt")
-	check(err)
-	sid, err := fmt.Scanln(file)
-	check(err)
-	token, err := fmt.Scanln(file)
-	check(err)
-	twilAuth.sid = string(sid)
-	twilAuth.token = string(token)
+	router.POST("/", postroot)
+	router.GET("/login", getlogin)
+	router.POST("/login", postlogin)
 }
 
-func newMessage() {
-	twilio := gotwilio.NewTwilioClient(twilAuth.sid, twilAuth.token)
-	response, _, _ := twilio.GetSMS("https://chat.twilio.com/v2/Services")
-	fmt.Println(response)
+//Connectdb establishes a connection to db where none exists.
+func Connectdb(name string, pass string, dbtype string, db *sql.DB) *sql.DB {
+	c := func() *sql.DB {
+		if db == nil {
+			db, err := sql.Open(dbtype, (name + "/" + pass + "@/"))
+			check(err)
+			return db
+		}
+		return db
+	}
+	return c()
 }

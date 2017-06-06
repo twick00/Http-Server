@@ -1,26 +1,41 @@
-{{define "title"}}
+{{define "root"}}
+<!doctype html>
 <html>
-<h1>These are games</h1>
-{{range .Games}}
-<div>{{ .Title}} - {{ .Year}} - {{ .Genre}} - {{ .Barcode}} - {{ .ID}}</div>{{else}}
-<div><strong>no rows</strong></div>{{end}}
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ"
+	 crossorigin="anonymous">
+	<meta charset="utf-8">
+	<title>Root</title>
+</head>
+<h1>Hello, this is the root directory of my HTTP server</h1>
+<button type="button" formaction="localhost:8080/login">Login to MySql</button>
+
+<body>
+	<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n"
+	 crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb"
+	 crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn"
+	 crossorigin="anonymous"></script>
+</body>
+
 </html>
+
 {{end}}
 
 
-{{define "postgamedata"}}
+{{define "login"}}
 <html>
 <form method="post" action="/home">
-<h1>Post more games into the library.</h1>
-	<textarea  name="title" required placeholder="title"></textarea>
-	<textarea  name="year" required placeholder="year"></textarea>
+<h1>Please enter your login and password.</h1>
+	<textarea  name="name" required placeholder="User Name"></textarea>
+	<textarea  name="pass" required placeholder="Password"></textarea>
 	<textarea  name="genre" required placeholder="genre"></textarea>
 	<br>
-	<textarea name="barcode" placeholder="barcode (not required)" disabled></textarea>
-	<textarea name="ID" placeholder="ID (not required)" disabled></textarea>
-	<!--"barcode" and "ID" are temp disabled as they are not necessary for testing-->
-	<br>
-	<button type="submit">Send</button>
+	<button type="submit">Login</button>
 </form>
 </html>
 {{end}}
