@@ -11,10 +11,9 @@ import (
 var db *sql.DB
 
 func initconnectdb2() {
-	var err error
 	pass, err := ioutil.ReadFile("./res/pass.txt.")
-	strpass := string(pass)
-	db, err = sql.Open("mysql", strpass)
+
+	db, err = sql.Open("mysql", string(pass))
 	if err != nil {
 		panic(err)
 	}
